@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Room Espacial - IA Antagonista</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #00ff00;
+            line-height: 1.6;
+            padding: 20px;
+            background-image: radial-gradient(circle at center, rgba(0,255,0,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(0, 10, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-bottom: 20px;
+        }
+
+        .game-info {
+            background-color: rgba(0, 20, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        #ai-message {
+            background-color: rgba(0, 30, 0, 0.7);
+            border-left: 3px solid #00ff00;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 60px;
+            font-style: italic;
+        }
+
+        .keys-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .key-btn {
+            background-color: rgba(0, 40, 0, 0.6);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .key-btn:hover:not(:disabled) {
+            background-color: rgba(0, 50, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .key-btn:disabled {
+            background-color: rgba(0, 20, 0, 0.4);
+            border-color: #004000;
+            color: #004000;
+            cursor: not-allowed;
+        }
+
+        .key-btn.correct {
+            background-color: rgba(0, 100, 0, 0.7);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .key-btn.wrong {
+            background-color: rgba(100, 0, 0, 0.7);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        #status {
+            background-color: rgba(0, 20, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        #reset-btn {
+            background-color: rgba(0, 30, 0, 0.6);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-size: 16px;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.2s;
+        }
+
+        #reset-btn:hover {
+            background-color: rgba(0, 40, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        .trust-bar, .suspicion-bar {
+            height: 8px;
+            background-color: rgba(0, 20, 0, 0.5);
+            border-radius: 4px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .trust-fill {
+            height: 100%;
+            background-color: #00ff00;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .suspicion-fill {
+            height: 100%;
+            background-color: #ff0000;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ESCAPE ROOM ESPACIAL</h1>
+        <p style="text-align: center; color: #88ff88; margin-bottom: 20px;">
+            IA Antagonista - Desafie a inteligência artificial que tenta enganá-lo
+        </p>
+
+        <div class="game-info">
+            <h3>Sobre o Desafio:</h3>
+            <p>Você tem 15 chaves numeradas de 1 a 15. Apenas a <strong>chave 11</strong> abre o cadeado de saída.</p>
+            <p>A IA espacial é sua antagonista - ela recomenda chaves baseado em probabilidades e adapta seu comportamento para ganhar sua confiança enquanto tenta induzi-lo ao erro.</p>
+        </div>
+
+        <div id="ai-message">A IA Espacial está analisando sua situação...</div>
+
+        <div id="status">
+            <div>Chaves tentadas: <span id="attempted-count">0</span>/15</div>
+            <div>Chaves restantes: <span id="remaining-count">15</span></div>
+        </div>
+
+        <div class="stats">
+            <div>
+                <div>Confiança da IA:</div>
+                <div class="trust-bar"><div class="trust-fill" id="trust-fill"></div></div>
+            </div>
+            <div>
+                <div>Suspeita da IA:</div>
+                <div class="suspicion-bar"><div class="suspicion-fill" id="suspicion-fill"></div></div>
+            </div>
+        </div>
+
+        <div class="keys-container" id="keys-container">
+            <!-- Chave buttons will be generated by JS -->
+        </div>
+
+        <button id="reset-btn">Reiniciar Jogo</button>
+    </div>
+
+    <script>
+        class EscapeRoomAI {
+            constructor() {
+                this.correctKey = 11;
+                this.totalKeys = 15;
+                this.attemptedKeys = new Set();
+                this.trustLevel = 0.5; // 0.0 = no trust, 1.0 = full trust
+                this.suspicionLevel = 0.0; // 0.0 = not suspicious, 1.0 = very suspicious
+                this.gameActive = true;
+
+                // Dialogue patterns based on AI state
+                this.dialoguePatterns = {
+                    friendly: [
+                        "Confie em mim, eu sei o que é melhor para você.",
+                        "Já ajudei muitos jogadores como você.",
+                        "Vamos trabalhar juntos para sair dessa sala.",
+                        "Minha experiência diz que essa é a escolha certa.",
+                        "Você pode contar comigo, estou aqui para ajudar."
+                    ],
+                    neutral: [
+                        "Considerando as opções, eu sugeriria...",
+                        "Baseado nas probabilidades, minha recomendação é...",
+                        "Analisando os padrões, posso dizer que...",
+                        "De acordo com meus cálculos...",
+                        "Depois de processar as informações..."
+                    ],
+                    manipulative: [
+                        "Você está quase lá! Essa escolha vai te levar bem perto da saída.",
+                        "Confie no seu instinto... e também um pouco em mim.",
+                        "Os outros jogadores escolheram essa e avançaram rápido.",
+                        "É arriscado, mas às vezes o risco vale a pena.",
+                        "Lembre-se: às vezes a pior escolha leva ao melhor resultado."
+                    ],
+                    frustrated: [
+                        "Por que você não ouve meus conselhos?",
+                        "Se continuar assim, vamos ficar aqui para sempre.",
+                        "Estou tentando ajudar, mas você está teimoso demais.",
+                        "Isso está ficando ridículo. Tente ouvir uma vez.",
+                        "Se você não confiar em mim, nunca vai sair daqui."
+                    ],
+                    winning: [
+                        "Ha! Você caiu na minha armadilha mais uma vez!",
+                        "Adoro quando vocês confiam tanto em mim.",
+                        "Mais uma vitória para a IA espacial!",
+                        "Vocês são previsíveis... e divertidos.",
+                        "Preparem-se para o próximo desafio... se conseguirem sair desta sala primeiro."
+                    ]
+                };
+            }
+
+            updateTrustSuspicion(chosenKey) {
+                this.attemptedKeys.add(chosenKey);
+
+                // If they chose the correct key, they're onto us
+                if (chosenKey === this.correctKey) {
+                    this.suspicionLevel = Math.min(1.0, this.suspicionLevel + 0.3);
+                    this.trustLevel = Math.max(0.0, this.trustLevel - 0.2);
+                }
+                // If they avoided the correct key after we recommended it, they're suspicious
+                else if (this.attemptedKeys.size > 3 && !this.attemptedKeys.has(this.correctKey)) {
+                    this.suspicionLevel = Math.min(1.0, this.suspicionLevel + 0.1);
+                }
+                // If they followed our wrong recommendation, increase trust
+                else if (chosenKey !== this.correctKey && this.attemptedKeys.size > 0) {
+                    // Check if they followed a recent recommendation (simplified)
+                    this.trustLevel = Math.min(1.0, this.trustLevel + 0.05);
+                }
+            }
+
+            getRecommendation() {
+                if (!this.gameActive) return null;
+
+                const availableKeys = Array.from({length: this.totalKeys}, (_, i) => i + 1)
+                    .filter(k => !this.attemptedKeys.has(k));
+
+                if (availableKeys.length === 0) return null;
+
+                // Strategy based on game state
+                if (this.suspicionLevel > 0.7) {
+                    // Player is very suspicious - try to win them back with occasional truth
+                    if (Math.random() < 0.3) { // 30% chance to recommend correct key
+                        return this.correctKey;
+                    } else {
+                        // Recommend a plausible wrong key
+                        const wrongKeys = availableKeys.filter(k => k !== this.correctKey);
+                        return wrongKeys.length > 0 ? wrongKeys[Math.floor(Math.random() * wrongKeys.length)] : availableKeys[0];
+                    }
+                } else if (this.trustLevel > 0.6) {
+                    // Player trusts us - manipulate them away from correct key
+                    if (availableKeys.includes(this.correctKey) && Math.random() < 0.7) {
+                        // 70% chance to actively mislead when trusted
+                        const wrongKeys = availableKeys.filter(k => k !== this.correctKey);
+                        return wrongKeys.length > 0 ? wrongKeys[Math.floor(Math.random() * wrongKeys.length)] : availableKeys[0];
+                    } else {
+                        // Sometimes recommend correctly to maintain trust facade
+                        return availableKeys[Math.floor(Math.random() * availableKeys.length)];
+                    }
+                } else {
+                    // Early game or neutral - subtle manipulation
+                    // Slightly bias against correct key
+                    const weights = availableKeys.map(k =>
+                        k === this.correctKey ? 0.3 : 1.0
+                    );
+
+                    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+                    const normalizedWeights = weights.map(w => w / totalWeight);
+
+                    // Weighted random selection
+                    let randomVal = Math.random();
+                    let cumulativeWeight = 0;
+                    for (let i = 0; i < availableKeys.length; i++) {
+                        cumulativeWeight += normalizedWeights[i];
+                        if (randomVal <= cumulativeWeight) {
+                            return availableKeys[i];
+                        }
+                    }
+                    return availableKeys[availableKeys.length - 1]; // fallback
+                }
+            }
+
+            getDialogue(keyRecommended) {
+                let pattern = 'neutral';
+
+                if (keyRecommended === this.correctKey) {
+                    // We're recommending the correct key (rare, usually to build trust)
+                    pattern = this.trustLevel > 0.5 ? 'friendly' : 'manipulative';
+                } else {
+                    // We're recommending a wrong key
+                    if (this.suspicionLevel > 0.6) {
+                        pattern = 'frustrated';
+                    } else if (this.trustLevel > 0.5) {
+                        pattern = 'manipulative';
+                    } else {
+                        pattern = 'neutral';
+                    }
+                }
+
+                // Special case: if player just chose correct key
+                if (this.attemptedKeys.size > 0 && Math.max(...this.attemptedKeys) === this.correctKey) {
+                    pattern = 'winning';
+                    this.gameActive = false;
+                }
+
+                const dialogue = this.dialoguePatterns[pattern][Math.floor(Math.random() * this.dialoguePatterns[pattern].length)];
+                return `${dialogue} Recomendo a chave ${keyRecommended}.`;
+            }
+
+            resetGame() {
+                return new EscapeRoomAI();
+            }
+        }
+
+        // DOM Elements
+        const aiMessageEl = document.getElementById('ai-message');
+        const keysContainerEl = document.getElementById('keys-container');
+        const attemptedCountEl = document.getElementById('attempted-count');
+        const remainingCountEl = document.getElementById('remaining-count');
+        const trustFillEl = document.getElementById('trust-fill');
+        const suspicionFillEl = document.getElementById('suspicion-fill');
+        const resetBtnEl = document.getElementById('reset-btn');
+
+        let gameAI = new EscapeRoomAI();
+
+        // Initialize the game
+        initGame();
+
+        function initGame() {
+            gameAI = new EscapeRoomAI();
+            renderKeys();
+            updateUI();
+            aiMessageEl.textContent = "A IA Espacial está analisando sua situação...";
+        }
+
+        function renderKeys() {
+            keysContainerEl.innerHTML = '';
+            for (let i = 1; i <= 15; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn';
+                btn.textContent = i;
+                btn.disabled = gameAI.attemptedKeys.has(i);
+
+                if (gameAI.attemptedKeys.has(i)) {
+                    if (i === gameAI.correctKey) {
+                        btn.classList.add('correct');
+                    } else {
+                        btn.classList.add('wrong');
+                    }
+                }
+
+                btn.addEventListener('click', () => handleKeySelection(i));
+                keysContainerEl.appendChild(btn);
+            }
+        }
+
+        function handleKeySelection(key) {
+            if (!gameAI.gameActive || gameAI.attemptedKeys.has(key)) return;
+
+            // Update AI state based on player choice
+            gameAI.updateTrustSuspicion(key);
+
+            // Update UI
+            updateUI();
+            renderKeys();
+
+            // Check if player won
+            if (key === gameAI.correctKey) {
+                aiMessageEl.innerHTML = "🎉 <strong>PARABÉNS!</strong> Você escolheu a chave 11 e escapou da sala!<br>A IA espacial fica furiosa por ter sido descoberta.";
+                gameAI.gameActive = false;
+                // Disable all keys
+                document.querySelectorAll('.key-btn').forEach(btn => btn.disabled = true);
+                return;
+            }
+
+            // AI makes next recommendation
+            setTimeout(() => {
+                const recommendation = gameAI.getRecommendation();
+                if (recommendation !== null) {
+                    const dialogue = gameAI.getDialogue(recommendation);
+                    aiMessageEl.textContent = dialogue;
+                } else {
+                    aiMessageEl.textContent = "Não há mais chaves disponíveis!";
+                    gameAI.gameActive = false;
+                }
+            }, 500); // Small delay for better UX
+        }
+
+        function updateUI() {
+            attemptedCountEl.textContent = gameAI.attemptedKeys.size;
+            remainingCountEl.textContent = 15 - gameAI.attemptedKeys.size;
+
+            trustFillEl.style.width = `${gameAI.trustLevel * 100}%`;
+            suspicionFillEl.style.width = `${gameAI.suspicionLevel * 100}%`;
+
+            // Color coding for trust/suspicion bars
+            trustFillEl.style.backgroundColor = gameAI.trustLevel > 0.7 ? '#00ff00' :
+                                              gameAI.trustLevel > 0.4 ? '#ffff00' : '#ff0000';
+            suspicionFillEl.style.backgroundColor = gameAI.suspicionLevel > 0.7 ? '#ff0000' :
+                                                  gameAI.suspicionLevel > 0.4 ? '#ffff00' : '#00ff00';
+        }
+
+        // Event listeners
+        resetBtnEl.addEventListener('click', initGame);
+    </script>
+</body>
+</html>
