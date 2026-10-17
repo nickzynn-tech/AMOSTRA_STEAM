@@ -1,103 +1,53 @@
-# 🚀 Espacial Escape Room IA - Projeto Adaptativo
+# MS-D1 — Desafio 1: 15 Chaves, 1 Cadeado
 
-Um jogo interativo de escape room com tema espacial onde você enfrenta uma **inteligência artificial antagonista** que aprende com suas escolhas, adapta suas estratégias e tenta manipulá-lo para escolher as chaves erradas.
+Protótipo web de um escape room feito apenas com HTML5, CSS3 e JavaScript ES6+. A interface de jogo mostra **uma recomendação por vez**, com a chave, a probabilidade estimada e a pergunta “Essa chave foi a correta?”.
 
-## 📖 Sobre o Projeto
+## Executar no Windows
 
-Este projeto implementa uma IA adaptativa para um desafio de escape room físico com tema espacial, conforme descrito no arquivo de requisitos:
-- 15 chaves numeradas de 1 a 15
-- Apenas a **chave 11** abre o cadeado de saída
-- A IA funciona como antagonista, recomendando chaves baseado em probabilidades
-- Ela **adapta suas falas e comportamento** conforme suas escolhas para ganhar sua confiança enquanto tenta induzi-lo ao erro
-- Objetivo da IA: fazer você evitar a chave 11 (a correta) o maior tempo possível
+1. Extraia a pasta do projeto.
+2. Abra a pasta no VS Code.
+3. No terminal integrado, execute:
 
-## 🎮 Como Jogar
+   ```powershell
+   py -m http.server 8000
+   ```
 
-1. **Abra o arquivo** `escape_room_ai.html` em qualquer navegador web (Chrome, Firefox, Edge, Safari)
-2. Você verá 15 chaves disponíveis como botões (números 1-15)
-3. A IA Espacial aparecerá no topo da tela dando recomendações
-4. **Clique em qualquer chave** para tentar abri-la
-5. Após cada tentativa, a IA atualizará sua estratégia baseado em sua escolha:
-   - No início: parece neutra e útil
-   - Se você confiar nas recomendações dela: ela se torna mais manipulativa
-   - Se você desconfiar dela: ela fica frustrada e tenta recuperar sua confiança
-   - Se você acertar a chave 11: você vence e a IA demonstra "fúria" por ter sido descoberta
-   - Se você errar: ela comemora subtilmente enquanto tenta te enganar novamente
-6. Use o botão **"Reiniciar Jogo"** para jogar novamente com uma nova IA
+4. Abra <http://localhost:8000> no navegador.
+5. Para encerrar o servidor, volte ao terminal e pressione `Ctrl+C`.
 
-## 🧠 Características da IA Adaptativa
+O servidor local evita o bloqueio de módulos e outros recursos ao abrir o HTML com `file://`. Este projeto usa um script clássico local e não exige dependências externas.
 
-- **Aprendizado em tempo real**: Lembra quais chaves já foram tentadas
-- **Estratégia dinâmica**: 
-  - Início: recomendação neutra com leve viés contra a chave correta
-  - Confiança alta (>60%): 70% de chance de recomendar chaves erradas para manipular
-  - Suspeita alta (>70%): tenta recuperar confiança recomendando ocasionalmente a chave correta
-- **Diálogo contextual**: 5 tipos de respostas que mudam conforme o estado:
-  - Amigável (quando quer construir confiança)
-  - Neutro (estágio inicial)
-  - Manipulativo (quando confia em você)
-  - Frustrado (quando você desconfia dela)
-  - Vencedor (quando você cai em sua armadilha)
-- **Feedback visual**: Barras de confiança e suspeita que se atualizam em tempo real
+## Arquivos
 
-## 🛠️ Tecnologias Utilizadas
+- `index.html`: tela inicial e painel de recomendação individual.
+- `style.css`: tema CRT verde, linhas de monitor, layout responsivo e estados visuais.
+- `src/main.js`: probabilidades, sequência de recomendações, resposta Sim/Não, persistência e resultados.
+- `assets/icons/key.svg`: ícone local da chave.
 
-- **HTML5** - Estrutura da página
-- **CSS3** - Estilização com tema espacial (verde sobre preto, efeitos de brilho)
-- **JavaScript ES6** - Lógica da IA adaptativa e interatividade
-- **Nenhuma dependência externa** - Funciona puramente com tecnologias web nativas
+## Regras atuais
 
-## ▶️ Como Executar Localmente
+- Existem 15 chaves e a Chave 11 é a correta.
+- A interface mostra uma chave por vez. Ao responder “Não, tente outra”, o sistema registra a tentativa, atualiza a distribuição e apresenta outra chave ainda não mostrada.
+- “Sim, abriu” só é confirmado quando a chave atual é a Chave 11. Para outras chaves, o sistema informa que o cadeado não abriu e permite confirmar “Não”.
+- Como a Chave 11 é a solução fixa, quando ela aparece o mecanismo confirma a abertura mesmo se a opção negativa for selecionada por engano.
+- Cada tentativa errada aumenta a estimativa daquela chave em 8 pontos percentuais (máximo de 90%) e redistribui o restante proporcionalmente.
+- O limite atual é de 10 tentativas erradas.
+- Quando uma chave é rejeitada, ela não é mostrada novamente nessa partida. A sequência seguinte seleciona a probabilidade mais alta entre as chaves ainda não apresentadas.
 
-Não é necessário instalar nada! Este é um projeto totalmente autônomo:
+## Configurações
 
-1. **Clone ou baixe este repositório**
-2. Navegue até a pasta do projeto
-3. **Abra o arquivo** `escape_room_ai.html` em seu navegador preferido
-   - Duplo clique no arquivo
-   - Ou arraste o arquivo para uma janela do navegador
-4. Pronto! O jogo está pronto para ser jogado
+No início de `src/main.js`:
 
-## 📁 Estrutura do Projeto
-
-```
-escape-room-ai/
-├── escape_room_ai.html   # Jogo principal (HTML/CSS/JS)
-└── README.md             # Este arquivo
+```js
+const PERSIST = true;
+const MAX_MISTAKES = 10;
 ```
 
-## 💡 Como Funciona a Adaptação
+Defina `PERSIST = false` para desativar o armazenamento da partida em `localStorage`. Altere `MAX_MISTAKES` para mudar o limite de tentativas erradas.
 
-A IA implementa um modelo simples de aprendizado por reforço onde:
-- **Estado atual**: Nível de confiança (0-1) e suspeita (0-1) baseado em suas escolhas
-- **Ações**: Recomendar uma chave de 1-15 que ainda não foi tentada
-- **Recompensa**: A IA ganha "pontos" quando você escolhe uma chave errada (seu objetivo)
-- **Adaptação**: 
-  - Quando você segue suas recomendações erradas → aumenta confiança
-  - Quando você evita a chave correta após recomendação → aumenta suspeita
-  - Quando você escolhe a chave correta → aumenta suspeita significativamente e diminui confiança
+## Notas
 
-## 🤝 Contribuindo
-
-Este é um projeto educativo/demo, mas sugestões são bem-vindas! Sinta-se à vontade para:
-1. Fazer um fork do repositório
-2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Fazer commit das mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abrir um Pull Request
-
-## 📜 Licença
-
-Este projeto está licenciado sob a **Licença MIT** - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-> **Observação**: Este projeto foi criado como implementação prática dos conceitos descritos em um arquivo de requisitos de escape room espacial. O foco está em demonstrar princípios de adaptação comportamental em IA de forma simples e acessível.
-
----
-
-### 🎯 Dica para Desenvolvedores
-Quer ver a IA em ação? tente:
-- Sempre seguir suas recomendações para observar como ela aumenta a manipulação
-- Sempre escolher o oposto de suas sugestões para ver como ela fica frustrada
-- Alternar entre confiar e desconfiar para ver o comportamento complexo de adaptação
-
-Divirta-se desafiando a inteligência artificial espacial! 👽💫
+- As probabilidades iniciais são valores inteiros de 5% a 15%, somando exatamente 100%.
+- A tela mostra apenas a probabilidade da recomendação atual; a soma geral não é exibida porque o objetivo desta versão é testar a interação individual.
+- A classe `.wear` continua aplicada visualmente à Chave 11 sem reduzir o contraste do texto.
+- A interface possui suporte básico a teclado, foco visível, região de mensagens acessível e `prefers-reduced-motion`.
