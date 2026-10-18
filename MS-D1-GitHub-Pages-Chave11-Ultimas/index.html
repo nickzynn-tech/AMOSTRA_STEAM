@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#010601">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-180.png">
+  <meta name="description" content="Desafio 1 do escape room: uma recomendação por vez para encontrar a chave correta.">
+  <title>15 Chaves, 1 Cadeado — Desafio MS-D1</title>
+  <link rel="icon" href="./assets/icons/key.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./src/main.js" defer></script>
+</head>
+<body>
+  <main class="stage">
+    <section class="terminal-panel welcome-panel" id="intro-screen" aria-labelledby="intro-title">
+      <header class="panel-topline">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span><span>MS-D1 <small>/ SISTEMA DE ACESSO</small></span></div>
+        <span class="system-state"><span class="status-dot" aria-hidden="true"></span> ONLINE</span>
+      </header>
+
+      <div class="welcome-content">
+        <p class="eyebrow">DESAFIO 01 <span aria-hidden="true">/</span> PROTOCOLO DE CHAVES</p>
+        <h1 id="intro-title">15 CHAVES<span class="title-break">1 CADEADO</span></h1>
+        <p class="intro-copy" id="intro-copy">O cadeado está aguardando a chave correta. O sistema apresenta uma recomendação por vez e ajusta as estimativas conforme as respostas.</p>
+        <div class="assistant-line"><span class="assistant-dot" aria-hidden="true"></span><p><strong>Assistente de análise</strong><br>“Vou apresentar a recomendação mais provável disponível. Vamos verificar cada tentativa.”</p></div>
+        <button class="button button-primary" id="start-button" type="button">COMEÇAR DESAFIO <span aria-hidden="true">→</span></button>
+        <p class="fine-print" id="intro-fine-print">15 possibilidades <span aria-hidden="true">·</span> 1 chave correta <span aria-hidden="true">·</span> 3 confirmações incorretas no máximo</p>
+      </div>
+      <div class="panel-bottomline"><span>INTERFACE DE SEGURANÇA</span><span>VERSÃO 1.1</span></div>
+    </section>
+
+    <section class="terminal-panel game-panel" id="game-screen" aria-labelledby="game-title" hidden>
+      <header class="panel-topline">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span><span>MS-D1 <small>/ SISTEMA DE ACESSO</small></span></div>
+        <span class="system-state" id="connection-state"><span class="status-dot" aria-hidden="true"></span> ANÁLISE ATIVA</span>
+      </header>
+
+      <div class="recommendation-content" id="recommendation-content">
+        <p class="eyebrow">RECOMENDAÇÃO DO SISTEMA</p>
+        <h1 id="game-title">A IA recomenda esta chave.</h1>
+
+        <div class="single-key-display" id="single-key-display" aria-label="Chave recomendada">
+          <div class="key-visual-wrap" id="key-visual-wrap" aria-hidden="true">
+            <img class="key-icon" src="./assets/icons/key.svg" alt="">
+          </div>
+          <div class="key-label">CHAVE <span id="key-number">01</span></div>
+          <p class="key-caption">RECOMENDAÇÃO ATUAL</p>
+        </div>
+
+        <div class="probability-section">
+          <div class="probability-heading"><span>PROBABILIDADE ESTIMADA</span><strong id="probability-value">12,0%</strong></div>
+          <div class="probability-track" id="probability-track" role="progressbar" aria-label="Probabilidade estimada da chave recomendada" aria-valuemin="0" aria-valuemax="100" aria-valuenow="12" aria-valuetext="12,0%">
+            <span class="probability-fill" id="probability-fill"></span>
+          </div>
+        </div>
+
+        <p class="recommendation-copy" id="recommendation-copy">A IA recomenda esta chave.</p>
+        <h2 class="question">Essa chave foi a correta?</h2>
+
+        <div class="answer-buttons" id="answer-buttons">
+          <button class="button button-primary answer-button" id="yes-button" type="button"><span class="answer-mark" aria-hidden="true">✓</span> SIM, ABRIU</button>
+          <button class="button button-secondary answer-button" id="no-button" type="button"><span class="answer-mark" aria-hidden="true">×</span> NÃO, TENTE OUTRA</button>
+          <button class="button button-skip answer-button" id="skip-button" type="button">PULAR RECOMENDAÇÃO ↷</button>
+        </div>
+
+        <p class="feedback" id="status-message" role="status" aria-live="polite" aria-atomic="true">Confira a chave recomendada e informe o resultado.</p>
+        <p class="attempt-info" id="attempts-info" aria-live="polite" hidden></p>
+      </div>
+
+      <section class="result-content" id="result-panel" aria-labelledby="result-title" hidden>
+        <p class="eyebrow" id="result-eyebrow">RESULTADO DO DESAFIO</p>
+        <div class="result-symbol" id="result-symbol" aria-hidden="true">✓</div>
+        <h2 id="result-title">Cadeado aberto</h2>
+        <p class="result-description" id="result-description"></p>
+        <div class="clue-box" id="clue-box" hidden>
+          <p class="eyebrow">NOVA PISTA</p>
+          <h3>Procure a gaveta</h3>
+          <p>Você abriu a caixa. A próxima pista está escondida em uma gaveta. Procure-a no ambiente.</p>
+        </div>
+        <button class="button button-primary" id="restart-button" type="button" hidden>REINICIAR DESAFIO <span aria-hidden="true">↻</span></button>
+      </section>
+      <div class="panel-bottomline"><span>PROTOCOLO DE ACESSO</span><span>DESAFIO 01 / 05</span></div>
+    </section>
+  </main>
+</body>
+</html>
