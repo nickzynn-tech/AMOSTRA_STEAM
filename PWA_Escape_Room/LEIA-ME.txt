@@ -1,0 +1,30 @@
+PWA — JOGO 15 CHAVES / DESAFIO MS-D1
+
+O que este pacote faz
+- Adiciona um manifesto PWA configurado para pedir tela cheia, com alternativa standalone.
+- Fornece icones PNG 192x192 e 512x512.
+- O script setup-pwa.ps1 insere as referencias ao manifesto no HTML existente, fazendo backup antes de alterar.
+- Nao recria nem modifica a logica do jogo.
+
+COMO USAR
+1. Baixe o ZIP e extraia seu CONTEUDO diretamente na pasta do projeto onde esta desafio-chaves.html.
+   A pasta final deve conter lado a lado:
+      desafio-chaves.html
+      manifest.webmanifest
+      setup-pwa.ps1
+      icons\icon-192.png
+      icons\icon-512.png
+2. Abra o PowerShell nessa pasta.
+3. Execute este comando:
+      powershell -ExecutionPolicy Bypass -File .\setup-pwa.ps1
+   O script cria um backup do HTML e adiciona as duas referencias ao head.
+4. Confira as mudancas e publique os arquivos no GitHub (commit/push). Inclua o HTML alterado, manifest.webmanifest e a pasta icons.
+5. Aguarde o GitHub Pages atualizar.
+6. No Android, abra o endereco publicado no Chrome, toque em ⋮ e selecione Instalar app. Se houver um app antigo instalado, remova-o antes de testar a nova versao.
+
+OBSERVACOES
+- Caminhos relativos foram usados para funcionar no GitHub Pages, inclusive se o site estiver em uma subpasta de repositorio.
+- A opcao display fullscreen solicita o modo de tela cheia. O comportamento final depende do navegador/Android.
+- Isso nao bloqueia gestos, botoes do sistema ou a saida do app. Para restringir o aparelho a um unico app, e necessario o modo quiosque do Android.
+
+IMPORTANTE: ao extrair o ZIP, extraia diretamente na pasta do projeto (na raiz onde esta desafio-chaves.html). O ZIP ja guarda manifest.webmanifest, setup-pwa.ps1 e icons/ na raiz.
